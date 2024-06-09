@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>CompactJson</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <DefineConstants>COMPACTJSON_PUBLIC</DefineConstants>
+    <TargetFrameworks>netstandard2.0;net462;net472</TargetFrameworks>
+    <Title>Fast and lightweight JSON serializer for .NET</Title>
+    <Description>A very compact, yet flexible, JSON serializer for .NET applications and libraries.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageTags>json;serializer;parser;.net</PackageTags>
+    <RepositoryUrl>https://github.com/pupsette/CompactJson.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/pupsette/CompactJson</PackageProjectUrl>
+    <Authors>pupsette</Authors>
+    <Version>1.2.3</Version>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Sources</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Sources'">
+    <NuspecFile>CompactJson.Source.nuspec</NuspecFile>
+    <NuspecProperties>version=$(Version);authors=$(Authors);projectUrl=$(PackageProjectUrl);repository=$(RepositoryUrl);licenseExpr=$(PackageLicenseExpression)</NuspecProperties>
+  </PropertyGroup>
+
+</Project>

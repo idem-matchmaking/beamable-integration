@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>CompactJson.Sources</id>
+    <version>$version$</version>
+    <authors>$authors$</authors>
+    <license type="expression">$licenseExpr$</license>
+    <projectUrl>$projectUrl$</projectUrl>
+    <repository type="git" url="$repository$"></repository>
+    <title>Fast and lightweight JSON serializer source code for embedding in C# projects</title>
+    <description>C# source code package for embedding a very compact JSON serializer in C# applications and libraries.</description>
+    <tags>json serializer parser .net</tags>
+    <contentFiles>
+      <files include="cs/any/**/*.cs" buildAction="Compile" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="*.cs" target="contentFiles/cs/any/CompactJson" />
+  </files>
+</package>
