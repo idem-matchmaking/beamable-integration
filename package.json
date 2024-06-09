@@ -3,7 +3,7 @@
   "displayName": "Idem Microservice",
   "version": "1.0.0",
   "unity": "2022.3",
-  "description": "",
+  "description": "Package Idem Microservice extends Beamable with capacity to use idem.gg matchmaking service. To do it\n\u25AAdeploy Idem Microservice\n\u25AAfill in the required configuration parameters\n\u25AAuse BeamContext.Default.IdemService()\n\nRequired configuration in 'Idem' namespace:\n\u25AAUsername - Idem username\n\u25AAPassword - Idem password\n\u25AASupportedGameModes - comma separated list of supported game modes\n\u25AAPlayerTimeoutMs - inactivity delay in ms before a player will be removed from MM\n\u25AAGlobalMatchTimeoutS - delay after a match will be considered abandoned and removed from MM\n\u25AADebug - not empty value will enable verbose logging and allow to use debug endpoints",
   "keywords": [ ],
   "dependencies": {
   }
