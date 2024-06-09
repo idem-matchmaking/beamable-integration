@@ -1,6 +1,6 @@
 {
-  "name": "gg.idem.beamable.microservice",
-  "displayName": "Idem Microservice",
+  "name": "gg.idem.integration-beamable",
+  "displayName": "Beamable Idem",
   "version": "1.0.0",
   "unity": "2022.3",
   "description": "",
