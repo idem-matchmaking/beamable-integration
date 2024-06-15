@@ -1,0 +1,11 @@
+{
+  "name": "IdemMicroserviceClientAsmdef",
+  "references": [
+    "Beamable.Platform",
+    "Unity.Beamable",
+    "Unity.Beamable.Runtime.Common",
+    "Unity.Beamable.Server.Runtime",
+    "Unity.Beamable.Server.Runtime.Common"
+  ],
+  "autoReferenced": true
+}
