@@ -16,11 +16,13 @@ namespace Beamable.Microservices
 	[Microservice("IdemMicroservice")]
 	public class IdemMicroservice : Microservice
 	{
+        // together with the websocket domain, the clientId depends on the stage
+        private const string IdemClientId = "3b7bo4gjuqsjuer6eatjsgo58u";
+        
         // microsservice config keys
         private const string ConfigNamespace = "Idem";
         private const string IdemUsernameConfigKey = "Username";
         private const string IdemPasswordConfigKey = "Password";
-        private const string IdemClientIdConfigKey = "ClientId";
         private const string DebugConfigKey = "Debug";
         private const string SupportedGameModesConfigKey = "SupportedGameModes";
         private const string PlayerTimoutMsConfigKey = "PlayerTimeoutMs";
@@ -198,17 +200,16 @@ namespace Beamable.Microservices
                 debug = !string.IsNullOrWhiteSpace(config.GetSetting(ConfigNamespace, DebugConfigKey));
                 var idemUsername = config.GetSetting(ConfigNamespace, IdemUsernameConfigKey);
                 var idemPassword = config.GetSetting(ConfigNamespace, IdemPasswordConfigKey);
-                var idemClientId = config.GetSetting(ConfigNamespace, IdemClientIdConfigKey);
                 var gameModesStr = config.GetSetting(ConfigNamespace, SupportedGameModesConfigKey);
                 if (string.IsNullOrWhiteSpace(idemUsername) || string.IsNullOrWhiteSpace(idemPassword) ||
-                    string.IsNullOrWhiteSpace(idemClientId) || string.IsNullOrWhiteSpace(gameModesStr))
+                    string.IsNullOrWhiteSpace(gameModesStr))
                 {
                     Fail(
-                        $"Idem config is not complete: {IdemUsernameConfigKey}, {IdemPasswordConfigKey}, {IdemClientIdConfigKey}, {SupportedGameModesConfigKey} are required");
+                        $"Idem config is not complete: {IdemUsernameConfigKey}, {IdemPasswordConfigKey}, {SupportedGameModesConfigKey} are required");
                     return;
                 }
 
-                var token = await AWSAuth.AuthAndGetToken(idemUsername, idemPassword, idemClientId, debug);
+                var token = await AWSAuth.AuthAndGetToken(idemUsername, idemPassword, IdemClientId, debug);
                 if (string.IsNullOrWhiteSpace(token))
                 {
                     Fail($"Could not authorize with AWS Cognito: response token is empty");
