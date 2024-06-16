@@ -4,7 +4,7 @@ This repository contains Idem.gg API implemented as Unity package providing Beam
 ## Installation
 * [Install Beamable](https://beamable.com)
 * Create an empty microservice with Beamable
-* Configure mandatory parameters in the Beamable -> Your project -> Operate -> Config -> 'Idem' namespace
+* Configure mandatory parameters in the Beamable portal -> Your project -> Operate -> Config -> 'Idem' namespace
 * Install this package either from git link [https://github.com/idem-matchmaking/integration-beamable.git](https://github.com/idem-matchmaking/integration-beamable) or by copying the source into the project
 * Deploy `IdemMicroservice`
 * Use `IdemService` methods to start/stop matchmaking and report game results
@@ -25,7 +25,7 @@ This repository contains Idem.gg API implemented as Unity package providing Beam
 Takes game length in seconds, map `teamId` -> `team rank`, 0 means the best result, map `playerId` -> `score` for score per player
 
 ### IsMatchmaking
-Returns true if matchmaking is in progress
+Returns `true` if matchmaking is in progress
 
 ### CurrentMatchInfo
 Contains all the details of the currently found match if any
@@ -38,3 +38,10 @@ Called when there is a match candidate but not all players confirmed
 
 ### event OnMatchReady
 Called when the match was confirmed by all the players and gameplay can be started
+
+### MatchInfo
+* `ready` - `true` if the match was confirmed and gameplay can be started
+* `gameMode` - game mode name of the match
+* `matchId` - unique id string of the match
+* `server` - server chosen for the match
+* `player` - list of players with their `teamId` and `playerId`
