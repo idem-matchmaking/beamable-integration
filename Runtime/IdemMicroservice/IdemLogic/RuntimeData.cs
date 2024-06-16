@@ -27,13 +27,14 @@ namespace Beamable.Microservices.Idem.IdemLogic
 	internal class WaitingPlayer
 	{
 		public readonly string playerId;
+		public readonly DateTime enqueuedAt;
 		public DateTime lastSeen;
 		public bool isInactive;
 
 		public WaitingPlayer(string playerId)
 		{
 			this.playerId = playerId;
-			lastSeen = DateTime.Now;
+			enqueuedAt = lastSeen = DateTime.Now;
 		}
 	}
 

@@ -18,6 +18,7 @@ namespace Beamable.Microservices.Idem.IdemLogic
         private readonly bool debug;
         private readonly TimeSpan playerTimeout;
         private readonly TimeSpan globalMatchTimeout;
+        private readonly TimeSpan matchmakingTimeout;
         private readonly Dictionary<string, GameModeContainer> gameModes = new ();
         private readonly List<CachedMatch> allMatches = new();
         private readonly Func<object, bool> sendToIdem;
@@ -25,12 +26,13 @@ namespace Beamable.Microservices.Idem.IdemLogic
         private readonly Queue<PlayerFullStats> recentPlayers = new ();
         private readonly Timer secondsTimer = new(1000);
 
-        public IdemLogic(bool debug, int playerTimeoutMs, int globalMatchesTimeoutS, Func<object, bool> sendToIdem)
+        public IdemLogic(bool debug, int playerTimeoutMs, int globalMatchesTimeoutS, int matchmakingTimeoutS, Func<object, bool> sendToIdem)
         {
             this.debug = debug;
             this.sendToIdem = sendToIdem;
             playerTimeout = TimeSpan.FromMilliseconds(playerTimeoutMs);
             globalMatchTimeout = TimeSpan.FromSeconds(globalMatchesTimeoutS);
+            matchmakingTimeout = matchmakingTimeoutS <= 0 ? TimeSpan.MaxValue : TimeSpan.FromSeconds(matchmakingTimeoutS);
 
             secondsTimer.Elapsed += OnEverySecond;
             secondsTimer.AutoReset = true;
@@ -129,6 +131,10 @@ namespace Beamable.Microservices.Idem.IdemLogic
 	        }
 
 	        var result = sendToIdem(new AddPlayerMessage(gameMode, playerId, servers));
+	        if (result)
+	        {
+				gameContainer.waitingPlayers[playerId] = new WaitingPlayer(playerId);
+	        }
 	        
 	        return result ? BaseResponse.Success : BaseResponse.IdemConnectionFailure;
         }
@@ -163,7 +169,7 @@ namespace Beamable.Microservices.Idem.IdemLogic
 		        {
 			        if (waitingPlayer.isInactive)
 			        {
-				        // there is a removal request already sent to Idem due to inactivity
+				        // there is a removal request already sent to Idem due to inactivity or MM timeout
 				        return MMStateResponse.Timeout();
 			        }
 			        
@@ -334,7 +340,8 @@ namespace Beamable.Microservices.Idem.IdemLogic
 
 	        foreach (var player in addPlayerResponse.payload.players)
 	        {
-		        gameContainer.waitingPlayers[player.playerId] = new WaitingPlayer(player.playerId);
+		        if (!gameContainer.waitingPlayers.ContainsKey(player.playerId))
+					gameContainer.waitingPlayers[player.playerId] = new WaitingPlayer(player.playerId);
 	        }
 
 	        SignalAwaiters(addPlayerResponse);
@@ -480,13 +487,15 @@ namespace Beamable.Microservices.Idem.IdemLogic
 	        foreach (var (gameId, gameModeContainer) in gameModes)
 			foreach (var (playerId, waitingPlayer) in gameModeContainer.waitingPlayers)
 			{
-				if (now - waitingPlayer.lastSeen <= playerTimeout || waitingPlayer.isInactive)
+				if (now - waitingPlayer.enqueuedAt < matchmakingTimeout &&
+				    now - waitingPlayer.lastSeen <= playerTimeout ||
+				    waitingPlayer.isInactive)
 					continue;
 				
 				toRemove.Add((gameId, waitingPlayer));
 				
 				if (debug)
-					Debug.Log($"Player {playerId} timed out in game mode {gameId}: last seen {waitingPlayer.lastSeen}, now {now}");
+					Debug.Log($"Player {playerId} timed out in game mode {gameId}: last seen {waitingPlayer.lastSeen}, enqueued {waitingPlayer.enqueuedAt}, now {now}");
 			}
 
 	        foreach (var (gameId, waitingPlayer) in toRemove)

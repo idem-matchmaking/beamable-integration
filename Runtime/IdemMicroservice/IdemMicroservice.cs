@@ -28,6 +28,7 @@ namespace Beamable.Microservices
         private const string SupportedGameModesConfigKey = "SupportedGameModes";
         private const string PlayerTimoutMsConfigKey = "PlayerTimeoutMs";
         private const string GlobalMatchTimeoutSConfigKey = "GlobalMatchTimeoutS";
+        private const string MatchmakingTimeoutSConfigKey = "MatchmakingTimeoutS";
         
         // microservice state
         private static bool debug = false;
@@ -237,8 +238,11 @@ namespace Beamable.Microservices
                 const int defaultGlobalMatchTimeoutS = 86400;
                 var globalMatchTimeoutS =
                     ParseConfigInt(config, GlobalMatchTimeoutSConfigKey, defaultGlobalMatchTimeoutS);
+                const int defaultMatchmakingTimeoutS = 0;
+                var matchmakingTimeoutS =
+                    ParseConfigInt(config, MatchmakingTimeoutSConfigKey, defaultMatchmakingTimeoutS);
 
-                logic ??= new(debug, playerTimeoutMs, globalMatchTimeoutS, SendThroughWs);
+                logic ??= new(debug, playerTimeoutMs, globalMatchTimeoutS, matchmakingTimeoutS, SendThroughWs);
                 logic.UpdateSupportedGameModes(gameModes);
 
                 // TODO_IDEM implement multiple game modes in the push mode
