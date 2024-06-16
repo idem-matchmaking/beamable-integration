@@ -18,6 +18,10 @@ namespace Idem
 
         public MatchInfo? CurrentMatchInfo { get; private set; } = null;
         /**
+         * Event fired when matchmaking is stopped by the server.
+         */
+        public event Action OnMatchmakingStopped;
+        /**
          * Event fired when a match is found, but not all players confirmed ready.
          */
         public event Action<MatchInfo> OnMatchFound;
@@ -26,8 +30,8 @@ namespace Idem
          */
         public event Action<MatchInfo> OnMatchReady;
 
+        private const int MaxMatchmakingFailures = 3;
         private readonly float MatchmakingPollIntervalS = 2f;
-        private readonly BeamContext ctx;
         private readonly IdemMicroserviceClient idemClient;
         private readonly CoroutineService coroutineService;
 
@@ -36,7 +40,6 @@ namespace Idem
 
         public IdemService(BeamContext ctx, IdemMicroserviceClient idemClient, CoroutineService coroutineService)
         {
-            this.ctx = ctx;
             this.idemClient = idemClient;
             this.coroutineService = coroutineService;
         }
@@ -183,10 +186,9 @@ namespace Idem
 
         private IEnumerator MatchmakingCoroutine()
         {
-            var minWaitingTime = Time.realtimeSinceStartup + 5f;
-            float lastRequestTime = Time.realtimeSinceStartup;
-            while (Time.realtimeSinceStartup < minWaitingTime ||
-                IsMatchmaking || CurrentMatchInfo != null && !isPlaying)
+            var lastRequestTime = Time.realtimeSinceStartup;
+            var failuresCount = 0;
+            while (IsMatchmaking || CurrentMatchInfo != null && !isPlaying)
             {
                 var timeLeftToWait = lastRequestTime + MatchmakingPollIntervalS - Time.realtimeSinceStartup;
                 yield return new WaitForSeconds(timeLeftToWait);
@@ -196,29 +198,39 @@ namespace Idem
                 while (!response.IsCompleted)
                     yield return null;
 
-                Debug.Log($"[{Time.realtimeSinceStartup:F}] MM state: {response.GetResult()}");
-                if (!response.IsFailed &&
-                    JsonUtil.TryParse<MMStateResponse>(response.GetResult(), out var parsed))
+                if (response.IsFailed || !JsonUtil.TryParse<MMStateResponse>(response.GetResult(), out var parsed))
                 {
-                    IsMatchmaking = parsed.inQueue;
-                    
-                    if (parsed.matchReady && CurrentMatchInfo != null)
+                    failuresCount++;
+                    if (failuresCount >= MaxMatchmakingFailures)
                     {
-                        StartPlaying();
+                        Debug.LogError($"Failed to get matchmaking status {MaxMatchmakingFailures} times. Stopping matchmaking.");
+                        StopMatchmaking();
+                        OnMatchmakingStopped?.Invoke();
                         yield break;
                     }
+                    continue;
+                }
+                
+                IsMatchmaking = parsed.inQueue;
                     
-                    if (parsed.matchFound && CurrentMatchInfo == null)
-                    {
-                        CurrentMatchInfo = new MatchInfo(parsed);
-                        OnMatchFound?.Invoke(CurrentMatchInfo.Value);
-                        yield return ConfirmMatch();
-                    }
+                if (parsed.matchReady && CurrentMatchInfo != null)
+                {
+                    StartPlaying();
+                    yield break;
+                }
+                    
+                if (parsed.matchFound && CurrentMatchInfo == null)
+                {
+                    CurrentMatchInfo = new MatchInfo(parsed);
+                    OnMatchFound?.Invoke(CurrentMatchInfo.Value);
+                    yield return ConfirmMatch();
+                }
 
-                    if (!parsed.matchFound && !parsed.matchReady && CurrentMatchInfo != null)
-                    {
-                        CurrentMatchInfo = null;
-                    }
+                if (!parsed.matchFound && !parsed.matchReady && CurrentMatchInfo != null)
+                {
+                    CurrentMatchInfo = null;
+                    if (!parsed.inQueue)
+                        OnMatchmakingStopped?.Invoke();
                 }
             }
         }
