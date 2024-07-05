@@ -11,15 +11,15 @@ This repository contains Idem.gg API implemented as Unity package providing Beam
 
 ## Configuration
 ### Mandatory parameters in 'Idem' namespace:
-* Username - Idem username
-* Password - Idem password
-* SupportedGameModes - comma separated list of supported game modes
+* `Username` - Idem username
+* `Password` - Idem password
+* `SupportedGameModes` - comma separated list of supported game modes
 
 ### Optional configuration in 'Idem' namespace:
-* PlayerTimeoutMs - inactivity delay in ms before a player will be removed from MM, default 5000
-* GlobalMatchTimeoutS - delay before a match will be considered abandoned and removed from MM, default 86400
-* MatchmakingTimeoutS - delay before matchmaking is stopped if no match found, 0 to disable, default 0
-* Debug - not empty value will enable verbose logging and allow to use debug endpoints, default disabled
+* `PlayerTimeoutMs` - inactivity delay in ms before a player will be removed from MM, default 5000
+* `GlobalMatchTimeoutS` - delay before a match will be considered abandoned and removed from MM, default 86400
+* `MatchmakingTimeoutS` - delay before matchmaking is stopped if no match found, 0 to disable, default 0
+* `Debug` - not empty value will enable verbose logging and allow to use debug endpoints, default disabled
 
 
 
