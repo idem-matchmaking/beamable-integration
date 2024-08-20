@@ -19,12 +19,16 @@ namespace Beamable.Microservices
 	{
         // together with the websocket domain, the clientId depends on the stage
         private const string IdemClientId = "3b7bo4gjuqsjuer6eatjsgo58u";
+        private const string BetaIdemClientId = "3ns1sc0lkrdqh25qvrqb9k3a80";
+        private const string ConnectionUrl = "wss://ws-int.idem.gg/";
+        private const string BetaConnectionUrl = "wss://ws.beta.idem.gg/";
         
         // microsservice config keys
         private const string ConfigNamespace = "Idem";
         private const string IdemUsernameConfigKey = "Username";
         private const string IdemPasswordConfigKey = "Password";
         private const string DebugConfigKey = "Debug";
+        private const string BetaConfigKey = "Beta";
         private const string SupportedGameModesConfigKey = "SupportedGameModes";
         private const string PlayerTimoutMsConfigKey = "PlayerTimeoutMs";
         private const string GlobalMatchTimeoutSConfigKey = "GlobalMatchTimeoutS";
@@ -32,6 +36,7 @@ namespace Beamable.Microservices
         
         // microservice state
         private static bool debug = false;
+        private static bool beta = false;
         private static WebSocket ws = null;
         private static Task<bool> connectionTask = null;
         private static IdemLogic logic = null;
@@ -199,7 +204,14 @@ namespace Beamable.Microservices
                 connectionTask = connectionCompletion.Task;
 
                 var config = await Services.RealmConfig.GetRealmConfigSettings();
+                
                 debug = !string.IsNullOrWhiteSpace(config.GetSetting(ConfigNamespace, DebugConfigKey));
+                if (debug)
+                    Debug.Log($"DEBUG mode on!");
+                beta = config.GetSetting(ConfigNamespace, BetaConfigKey) == "true";
+                if (debug)
+                    Debug.Log($"BETA mode on!");
+                
                 var idemUsername = config.GetSetting(ConfigNamespace, IdemUsernameConfigKey);
                 var idemPassword = config.GetSetting(ConfigNamespace, IdemPasswordConfigKey);
                 var gameModesStr = config.GetSetting(ConfigNamespace, SupportedGameModesConfigKey);
@@ -211,7 +223,8 @@ namespace Beamable.Microservices
                     return;
                 }
 
-                var token = await AWSAuth.AuthAndGetToken(idemUsername, idemPassword, IdemClientId, debug);
+                var clientId = beta ? BetaIdemClientId : IdemClientId;
+                var token = await AWSAuth.AuthAndGetToken(idemUsername, idemPassword, clientId, debug);
                 if (string.IsNullOrWhiteSpace(token))
                 {
                     Fail($"Could not authorize with AWS Cognito: response token is empty");
@@ -245,9 +258,9 @@ namespace Beamable.Microservices
                 logic ??= new(debug, playerTimeoutMs, globalMatchTimeoutS, matchmakingTimeoutS, SendThroughWs);
                 logic.UpdateSupportedGameModes(gameModes);
 
-                // TODO_IDEM implement multiple game modes in the push mode
-                var pushParams = $"receiveMatches=true&gameMode={gameModes[0]}&";
-                var connectionUrl = $"wss://ws-int.idem.gg/?{pushParams}authorization={token}";
+                var pushParams = $"receiveMatches=true&gameMode={string.Join(",", gameModes)}&";
+                var baseUrl = beta ? BetaConnectionUrl : ConnectionUrl;
+                var connectionUrl = $"{baseUrl}/?{pushParams}authorization={token}";
                 Debug.Log($"Starting Idem connection to: {connectionUrl}");
 
                 ws = new WebSocket(connectionUrl);

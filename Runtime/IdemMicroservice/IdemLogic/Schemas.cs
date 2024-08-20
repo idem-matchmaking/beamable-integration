@@ -22,6 +22,10 @@ namespace Beamable.Microservices.Idem.IdemLogic
                 "updateMatchFailedResponse" => JsonUtil.Parse<FailMatchResponseMessage>(fullJson),
                 "updateMatchCompletedResponse" => JsonUtil.Parse<CompleteMatchResponseMessage>(fullJson),
                 "matchSuggestion" => JsonUtil.Parse<MatchSuggestionMessage>(fullJson),
+                "requestBackfillingResponse" => JsonUtil.Parse<RequestBackfillingResponseMessage>(fullJson),
+                "cancelBackfillingRequestResponse" => JsonUtil.Parse<CancelBackfillingRequestResponseMessage>(fullJson),
+                "backfillingMatchSuggestion" => JsonUtil.Parse<BackfillingMatchSuggestionMessage>(fullJson),
+                "subscribeResponse" => JsonUtil.Parse<SubscribeResponseMessage>(fullJson),
                 "keepAlive" => header,
                 _ => null
             };
@@ -235,6 +239,88 @@ namespace Beamable.Microservices.Idem.IdemLogic
         public MatchSuggestionPayload payload;
     }
 
+    public class RequestBackfillingMessage : BaseIdemMessage
+    {
+        public RequestBackfillingPayload payload;
+        
+        public RequestBackfillingMessage()
+        {
+            action = "requestBackfilling";
+        }
+        
+        public RequestBackfillingMessage(string gameId, string matchId, string backfillingRequestId, string droppedPlayerId, IEnumerable<BackfillingScores> matchScores) : this()
+        {
+            payload = new RequestBackfillingPayload
+            {
+                gameId = gameId,
+                matchId = matchId,
+                backfillingRequestId = backfillingRequestId,
+                droppedPlayerId = droppedPlayerId,
+                matchScores = matchScores.ToArray()
+            };
+        }
+    }
+    
+    public class RequestBackfillingResponseMessage : BaseIdemMessage
+    {
+        public RequestBackfillingResponsePayload payload;
+    }
+    
+    public class CancelBackfillingRequestMessage : BaseIdemMessage
+    {
+        public CancelBackfillingRequestPayload payload;
+        
+        public CancelBackfillingRequestMessage()
+        {
+            action = "cancelBackfillingRequest";
+        }
+        
+        public CancelBackfillingRequestMessage(string gameId, string matchId, string backfillingRequestId) : this()
+        {
+            payload = new CancelBackfillingRequestPayload
+            {
+                gameId = gameId,
+                matchId = matchId,
+                backfillingRequestId = backfillingRequestId
+            };
+        }
+    }
+    
+    public class CancelBackfillingRequestResponseMessage : BaseIdemMessage
+    {
+        public CancelBackfillingRequestResponsePayload payload;
+    }
+    
+    public class BackfillingMatchSuggestionMessage : BaseIdemMessage
+    {
+        public BackfillingMatchSuggestionPayload payload;
+    }
+    
+    public class SubscribeMessage : BaseIdemMessage
+    {
+        public SubscribePayload payload;
+        
+        public SubscribeMessage()
+        {
+            action = "subscribe";
+        }
+        
+        public SubscribeMessage(string[] gameIds, int priority, int rateLimit) : this()
+        {
+            payload = new SubscribePayload
+            {
+                gameIds = gameIds,
+                priority = priority,
+                rateLimit = rateLimit
+            };
+        }
+    }
+    
+    public class SubscribeResponseMessage : BaseIdemMessage
+    {
+        public SubscribePayload payload;
+    }
+
     public class AddPlayerPayload
     {
         public string gameId;
@@ -307,11 +393,46 @@ namespace Beamable.Microservices.Idem.IdemLogic
     {
         public PlayerFullStats[] players;
     }
+    
+    public class RequestBackfillingPayload : MatchIdPayload
+    {
+        public string backfillingRequestId;
+        public string droppedPlayerId;
+        public BackfillingScores[] matchScores;
+    }
+    
+    public class RequestBackfillingResponsePayload : MatchIdPayload
+    {
+        public string backfillingRequestId;
+    }
+    
+    public class CancelBackfillingRequestPayload : MatchIdPayload
+    {
+        public string backfillingRequestId;
+    }
+    
+    public class CancelBackfillingRequestResponsePayload : MatchIdPayload
+    {
+        public string backfillingRequestId;
+    }
 
     public class MatchSuggestionPayload
     {
         public string gameId;
         public Match match;
+    }
+
+    public class BackfillingMatchSuggestionPayload : MatchIdPayload
+    {
+        public string backfillingRequestId;
+        public Player player;
+    }
+
+    public class SubscribePayload
+    {
+        public string[] gameIds;
+        public int priority;
+        public int rateLimit;
     }
 
     public class AddPlayerPlayer : Player
@@ -322,6 +443,12 @@ namespace Beamable.Microservices.Idem.IdemLogic
     public class TeamResult
     {
         public int rank;
+        public PlayerResult[] players;
+    }
+
+    public class BackfillingScores
+    {
+        public float score;
         public PlayerResult[] players;
     }
 
