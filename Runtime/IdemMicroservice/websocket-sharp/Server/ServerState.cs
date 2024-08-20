@@ -26,9 +26,7 @@
  */
 #endregion
 
-using System;
-
-namespace WebSocketSharp.Server
+namespace IdemMicroservice.websocket_sharp.Server
 {
   internal enum ServerState
   {

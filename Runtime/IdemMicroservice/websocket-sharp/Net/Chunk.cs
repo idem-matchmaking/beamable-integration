@@ -39,7 +39,7 @@
 
 using System;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   internal class Chunk
   {

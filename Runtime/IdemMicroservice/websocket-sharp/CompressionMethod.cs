@@ -26,9 +26,7 @@
  */
 #endregion
 
-using System;
-
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   /// <summary>
   /// Specifies the method for compression.

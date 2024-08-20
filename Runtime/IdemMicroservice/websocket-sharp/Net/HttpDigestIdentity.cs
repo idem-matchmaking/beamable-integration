@@ -26,11 +26,10 @@
  */
 #endregion
 
-using System;
 using System.Collections.Specialized;
 using System.Security.Principal;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   /// <summary>
   /// Holds the username and other parameters from an HTTP Digest

@@ -34,9 +34,9 @@
 #endregion
 
 using System;
-using WebSocketSharp.Net.WebSockets;
+using IdemMicroservice.websocket_sharp.Net.WebSockets;
 
-namespace WebSocketSharp.Server
+namespace IdemMicroservice.websocket_sharp.Server
 {
   /// <summary>
   /// Exposes the methods and properties used to access the information in

@@ -40,7 +40,7 @@
 using System;
 using System.IO;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   internal class RequestStream : Stream
   {

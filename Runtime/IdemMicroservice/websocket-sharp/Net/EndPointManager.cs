@@ -49,7 +49,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   internal sealed class EndPointManager
   {

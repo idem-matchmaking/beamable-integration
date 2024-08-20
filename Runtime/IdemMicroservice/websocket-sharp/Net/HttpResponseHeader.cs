@@ -37,7 +37,7 @@
  */
 #endregion
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   /// <summary>
   /// Indicates the HTTP header that can be specified in a server response.

@@ -26,9 +26,7 @@
  */
 #endregion
 
-using System;
-
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   /// <summary>
   /// Indicates whether the payload data of a WebSocket frame is masked.

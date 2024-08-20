@@ -39,7 +39,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   internal class WebSocketFrame : IEnumerable<byte>
   {

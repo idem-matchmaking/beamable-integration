@@ -47,7 +47,7 @@
 using System;
 using System.Threading;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   internal class HttpListenerAsyncResult : IAsyncResult
   {

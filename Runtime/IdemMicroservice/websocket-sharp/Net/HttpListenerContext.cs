@@ -40,9 +40,9 @@
 using System;
 using System.Security.Principal;
 using System.Text;
-using WebSocketSharp.Net.WebSockets;
+using IdemMicroservice.websocket_sharp.Net.WebSockets;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   /// <summary>
   /// Provides the access to the HTTP request and response objects used by

@@ -28,7 +28,7 @@
 
 using System;
 
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   /// <summary>
   /// Represents the event data for the <see cref="WebSocket.OnMessage"/> event.

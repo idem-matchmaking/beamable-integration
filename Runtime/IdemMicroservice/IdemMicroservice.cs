@@ -8,8 +8,8 @@ using Beamable.Microservices.Idem.Shared.MicroserviceSchema;
 using Beamable.Microservices.Idem.Tools;
 using Beamable.Server;
 using Beamable.Server.Api.RealmConfig;
+using IdemMicroservice.websocket_sharp;
 using UnityEngine;
-using WebSocketSharp;
 
 namespace Beamable.Microservices
 {

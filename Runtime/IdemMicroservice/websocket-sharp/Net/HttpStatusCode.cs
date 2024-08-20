@@ -36,7 +36,7 @@
  */
 #endregion
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   /// <summary>
   /// Indicates the HTTP status code that can be specified in a server response.

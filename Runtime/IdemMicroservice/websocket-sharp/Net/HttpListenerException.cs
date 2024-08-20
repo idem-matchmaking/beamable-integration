@@ -41,7 +41,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   /// <summary>
   /// The exception that is thrown when an error occurs processing

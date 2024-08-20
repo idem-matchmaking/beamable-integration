@@ -37,9 +37,7 @@
  */
 #endregion
 
-using System;
-
-namespace WebSocketSharp.Net
+namespace IdemMicroservice.websocket_sharp.Net
 {
   /// <summary>
   /// Specifies the scheme for authentication.

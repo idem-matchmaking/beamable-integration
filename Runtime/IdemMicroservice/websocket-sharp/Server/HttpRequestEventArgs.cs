@@ -30,9 +30,9 @@ using System;
 using System.IO;
 using System.Security.Principal;
 using System.Text;
-using WebSocketSharp.Net;
+using IdemMicroservice.websocket_sharp.Net;
 
-namespace WebSocketSharp.Server
+namespace IdemMicroservice.websocket_sharp.Server
 {
   /// <summary>
   /// Represents the event data for the HTTP request events of the

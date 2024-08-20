@@ -30,7 +30,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   /// <summary>
   /// Represents a log data used by the <see cref="Logger"/> class.

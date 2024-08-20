@@ -37,9 +37,9 @@ using System;
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
-using WebSocketSharp.Net;
+using IdemMicroservice.websocket_sharp.Net;
 
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   internal class HttpRequest : HttpBase
   {

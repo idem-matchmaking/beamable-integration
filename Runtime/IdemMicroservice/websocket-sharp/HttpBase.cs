@@ -33,9 +33,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using WebSocketSharp.Net;
+using IdemMicroservice.websocket_sharp.Net;
 
-namespace WebSocketSharp
+namespace IdemMicroservice.websocket_sharp
 {
   internal abstract class HttpBase
   {
