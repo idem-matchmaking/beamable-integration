@@ -53,13 +53,14 @@ namespace Beamable.Microservices.Idem.Tools
                 "https://cognito-idp.eu-central-1.amazonaws.com/",
                 authPayload,
                 ("X-Amz-Target", "AWSCognitoIdentityProviderService.InitiateAuth"),
-                "application/x-amz-json-1.1"
+                "application/x-amz-json-1.1",
+                debug
             );
             
             if (debug)
-                Debug.Log($"IdToken: {authResponse.AuthenticationResult.IdToken}");
+                Debug.Log($"IdToken: {authResponse?.AuthenticationResult?.IdToken}");
             
-            return authResponse.AuthenticationResult.IdToken;
+            return authResponse?.AuthenticationResult?.IdToken;
         }
 
         private static async Task<T> MakePostRequest<T, TP>(string url, TP param, (string key, string val) header,

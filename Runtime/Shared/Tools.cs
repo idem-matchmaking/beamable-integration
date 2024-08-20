@@ -12,7 +12,7 @@ namespace Beamable.Microservices.Idem.Shared
                 result = CompactJson.Serializer.Parse<T>(json);
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 result = default;
                 return false;

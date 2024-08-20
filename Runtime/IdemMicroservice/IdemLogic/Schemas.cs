@@ -248,7 +248,7 @@ namespace Beamable.Microservices.Idem.IdemLogic
             action = "requestBackfilling";
         }
         
-        public RequestBackfillingMessage(string gameId, string matchId, string backfillingRequestId, string droppedPlayerId, IEnumerable<BackfillingScores> matchScores) : this()
+        public RequestBackfillingMessage(string gameId, string matchId, string backfillingRequestId, string droppedPlayerId, IEnumerable<ScoreData> matchScores) : this()
         {
             payload = new RequestBackfillingPayload
             {
@@ -256,7 +256,15 @@ namespace Beamable.Microservices.Idem.IdemLogic
                 matchId = matchId,
                 backfillingRequestId = backfillingRequestId,
                 droppedPlayerId = droppedPlayerId,
-                matchScores = matchScores.ToArray()
+                matchScores = matchScores?.Select(s => new BackfillingScores
+                {
+                    score = s.score,
+                    players = s.players?.Select(p => new PlayerResult
+                    {
+                        playerId = p.playerId,
+                        score = p.score
+                    }).ToArray()
+                }).ToArray()
             };
         }
     }

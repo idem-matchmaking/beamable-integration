@@ -204,7 +204,9 @@ namespace Idem
                     if (failuresCount >= MaxMatchmakingFailures)
                     {
                         Debug.LogError($"Failed to get matchmaking status {MaxMatchmakingFailures} times. Stopping matchmaking.");
+#pragma warning disable CS4014
                         StopMatchmaking();
+#pragma warning restore CS4014
                         OnMatchmakingStopped?.Invoke();
                         yield break;
                     }

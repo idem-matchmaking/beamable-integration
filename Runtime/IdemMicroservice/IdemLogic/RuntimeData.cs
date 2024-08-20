@@ -45,6 +45,7 @@ namespace Beamable.Microservices.Idem.IdemLogic
 		public readonly IdemPlayer[] players;
 		public readonly bool[] confirmed;
 		public readonly bool[] playerLeft;
+		public readonly string[] backfillRequests;
 		public readonly DateTime[] lastSeen;
 		public readonly DateTime createdAt;
 		public DateTime activatedAt { get; private set; }
@@ -73,6 +74,7 @@ namespace Beamable.Microservices.Idem.IdemLogic
 
 			confirmed = new bool[this.players.Length];
 			playerLeft = new bool[this.players.Length];
+			backfillRequests = new string[this.players.Length];
 			lastSeen = new DateTime[this.players.Length];
 		}
 
@@ -123,6 +125,57 @@ namespace Beamable.Microservices.Idem.IdemLogic
 				if (timeoutedList.Contains(players[i].playerId))
 				{
 					playerLeft[i] = true;
+				}
+			}
+		}
+
+		public void BackfillRequested(string forPlayerId, string requestId)
+		{
+			for (int i = 0; i < players.Length; i++)
+			{
+				if (players[i].playerId == forPlayerId)
+					backfillRequests[i] = requestId;
+			}
+		}
+		
+		public string BackfillConfirmed(string requestId)
+		{
+			for (int i = 0; i < players.Length; i++)
+			{
+				if (backfillRequests[i] == requestId)
+				{
+					playerLeft[i] = true;
+					return players[i].playerId;
+				}
+			}
+
+			return string.Empty;
+		}
+		
+		public string BackfillRejected(string requestId)
+		{
+			for (int i = 0; i < players.Length; i++)
+			{
+				if (backfillRequests[i] == requestId)
+				{
+					backfillRequests[i] = null;
+					playerLeft[i] = false;
+					return players[i].playerId;
+				}
+			}
+
+			return string.Empty;
+		}
+
+		public void BackfillCompleted(string requestId, string newPlayerId)
+		{
+			for (int i = 0; i < players.Length; i++)
+			{
+				if (backfillRequests[i] == requestId)
+				{
+					backfillRequests[i] = null;
+					players[i] = new IdemPlayer(players[i].teamId, newPlayerId);
+					playerLeft[i] = false;
 				}
 			}
 		}

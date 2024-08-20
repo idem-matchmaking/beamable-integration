@@ -33,10 +33,12 @@ namespace Beamable.Microservices
         private const string PlayerTimoutMsConfigKey = "PlayerTimeoutMs";
         private const string GlobalMatchTimeoutSConfigKey = "GlobalMatchTimeoutS";
         private const string MatchmakingTimeoutSConfigKey = "MatchmakingTimeoutS";
+        private const string ProtectedRequestsConfigKey = "ProtectedRequestsKey";
         
         // microservice state
         private static bool debug = false;
         private static bool beta = false;
+        private static string protectedRequestsKey = null;
         private static WebSocket ws = null;
         private static Task<bool> connectionTask = null;
         private static IdemLogic logic = null;
@@ -158,6 +160,52 @@ namespace Beamable.Microservices
                 Debug.Log($"CompleteMatch called for playerId {playerId}, matchId {matchResult.matchId}, response: {response}");
             return response;
         }
+        
+        // protected request
+        [ClientCallable]
+        public async Task<string> RequestBackfilling(string payload, string requestKey)
+        {
+            var connectionError = await CheckConnection();
+            if (connectionError != null)
+                return connectionError;
+
+            if (!string.IsNullOrWhiteSpace(protectedRequestsKey) && protectedRequestsKey != requestKey)
+            {
+                if (debug)
+                    Debug.LogWarning($"Got protected request with invalid key: {requestKey}. Expected: {protectedRequestsKey}. Ignoring.");
+                return string.Empty;
+            }
+
+            var data = JsonUtil.Parse<BackfillingData>(payload);
+
+            var result = logic.RequestBackfilling(data);
+            var response = result.ToJson();
+            if (debug)
+                Debug.Log($"RequestBackfilling called with payload {payload}, response: {response}");
+            return response;
+        }
+        
+        // protected request
+        [ClientCallable]
+        public async Task<string> CancelBackfilling(string matchId, string backfillingRequestId, string requestKey)
+        {
+            var connectionError = await CheckConnection();
+            if (connectionError != null)
+                return connectionError;
+
+            if (!string.IsNullOrWhiteSpace(protectedRequestsKey) && protectedRequestsKey != requestKey)
+            {
+                if (debug)
+                    Debug.LogWarning($"Got protected request with invalid key: {requestKey}. Expected: {protectedRequestsKey}. Ignoring.");
+                return string.Empty;
+            }
+
+            var result = logic.CancelBackfillingRequest(matchId, backfillingRequestId);
+            var response = result.ToJson();
+            if (debug)
+                Debug.Log($"CancelBackfilling called with matchId {matchId}, request id {backfillingRequestId}, response: {response}");
+            return response;
+        }
 
         private async Task<string> CheckConnection()
         {
@@ -215,6 +263,7 @@ namespace Beamable.Microservices
                 var idemUsername = config.GetSetting(ConfigNamespace, IdemUsernameConfigKey);
                 var idemPassword = config.GetSetting(ConfigNamespace, IdemPasswordConfigKey);
                 var gameModesStr = config.GetSetting(ConfigNamespace, SupportedGameModesConfigKey);
+                protectedRequestsKey = config.GetSetting(ConfigNamespace, ProtectedRequestsConfigKey);
                 if (string.IsNullOrWhiteSpace(idemUsername) || string.IsNullOrWhiteSpace(idemPassword) ||
                     string.IsNullOrWhiteSpace(gameModesStr))
                 {
@@ -260,7 +309,7 @@ namespace Beamable.Microservices
 
                 var pushParams = $"receiveMatches=true&gameMode={string.Join(",", gameModes)}&";
                 var baseUrl = beta ? BetaConnectionUrl : ConnectionUrl;
-                var connectionUrl = $"{baseUrl}/?{pushParams}authorization={token}";
+                var connectionUrl = $"{baseUrl}?{pushParams}authorization={token}";
                 Debug.Log($"Starting Idem connection to: {connectionUrl}");
 
                 ws = new WebSocket(connectionUrl);
@@ -276,7 +325,7 @@ namespace Beamable.Microservices
 
                 ws.Connect();
 
-                Debug.Log($"Idem WS state: {ws.ReadyState}");
+                Debug.Log($"Idem WS state: {(ws == null ? "NULL" : ws.ReadyState)}");
             }
             catch (Exception e)
             {

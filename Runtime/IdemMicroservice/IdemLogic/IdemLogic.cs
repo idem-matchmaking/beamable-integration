@@ -218,6 +218,26 @@ namespace Beamable.Microservices.Idem.IdemLogic
 		        ? BaseResponse.Success
 		        : BaseResponse.IdemConnectionFailure;
         }
+        
+        public BaseResponse RequestBackfilling(BackfillingData data)
+		{
+	        var match = FindActiveMatch(data.matchId, out _);
+	        if (match == null)
+		        return BaseResponse.UnknownMatchFailure;
+
+	        var result = sendToIdem(new RequestBackfillingMessage(match.gameId, match.matchId, data.backfillingRequestId, data.droppedPlayerId, data.matchScores));
+	        return result ? BaseResponse.Success : BaseResponse.IdemConnectionFailure;
+		}
+
+		public BaseResponse CancelBackfillingRequest(string matchId, string backfillingRequestId)
+		{
+	        var match = FindActiveMatch(matchId, out _);
+	        if (match == null)
+		        return BaseResponse.UnknownMatchFailure;
+
+	        var result = sendToIdem(new CancelBackfillingRequestMessage(match.gameId, match.matchId, backfillingRequestId));
+	        return result ? BaseResponse.Success : BaseResponse.IdemConnectionFailure;
+		}
 
         public void HandleIdemMessage(string message)
         {
@@ -261,6 +281,15 @@ namespace Beamable.Microservices.Idem.IdemLogic
 		            break;
 	            case CompleteMatchResponseMessage completeMatchResponse:
 		            OnCompleteMatchResponse(completeMatchResponse);
+		            break;
+	            case RequestBackfillingResponseMessage requestBackfillingResponse:
+		            OnBackfillingResponse(requestBackfillingResponse);
+		            break;
+	            case CancelBackfillingRequestResponseMessage cancelBackfillingRequestResponse:
+		            OnCancelBackfillingResponse(cancelBackfillingRequestResponse);
+		            break;
+	            case BackfillingMatchSuggestionMessage backfillingMatchSuggestion:
+		            OnBackfillingMatchSuggestion(backfillingMatchSuggestion);
 		            break;
 	            case MatchSuggestionMessage matchSuggestion:
 		            OnMatchSuggestion(matchSuggestion);
@@ -454,6 +483,56 @@ namespace Beamable.Microservices.Idem.IdemLogic
 
 	        while (recentPlayers.Count > MaxRecentPlayers)
 		        recentPlayers.Dequeue();
+        }
+
+        private void OnBackfillingResponse(RequestBackfillingResponseMessage response)
+        {
+	        SignalAwaiters(response);
+
+	        var matchId = response.payload.matchId;
+	        var match = FindActiveMatch(matchId, out var gameMode);
+	        if (match == null)
+	        {
+		        Debug.LogWarning($"No match with id {matchId} found for backfilling response. Game mode {response.payload.gameId}, request id {response.payload.backfillingRequestId}. Ignoring");
+		        return;
+	        }
+
+	        var removedPlayerId = match.BackfillConfirmed(response.payload.backfillingRequestId);
+	        gameMode.activeMatches.Remove(removedPlayerId);
+        }
+
+        private void OnCancelBackfillingResponse(CancelBackfillingRequestResponseMessage response)
+        {
+	        SignalAwaiters(response);
+
+	        var matchId = response.payload.matchId;
+	        var match = FindActiveMatch(matchId, out var gameMode);
+	        if (match == null)
+	        {
+		        Debug.LogWarning($"No match with id {matchId} found for cancel backfilling response. Game mode {response.payload.gameId}, request id {response.payload.backfillingRequestId}. Ignoring");
+		        return;
+	        }
+
+	        var removedPlayerId = match.BackfillRejected(response.payload.backfillingRequestId);
+	        if (!string.IsNullOrEmpty(removedPlayerId))
+		        gameMode.activeMatches[removedPlayerId] = match;
+        }
+
+        private void OnBackfillingMatchSuggestion(BackfillingMatchSuggestionMessage response)
+        {
+	        SignalAwaiters(response);
+
+	        var matchId = response.payload.matchId;
+	        var match = FindActiveMatch(matchId, out var gameMode);
+	        if (match == null)
+	        {
+		        Debug.LogWarning($"No match with id {matchId} found for backfilling match suggestion. Game mode {response.payload.gameId}, request id {response.payload.backfillingRequestId}. Ignoring");
+		        return;
+	        }
+
+	        var newPlayerId = response.payload.player.playerId;
+	        match.BackfillCompleted(response.payload.backfillingRequestId, newPlayerId);
+			gameMode.activeMatches[newPlayerId] = match;
         }
 
         private void OnMatchSuggestion(MatchSuggestionMessage matchSuggestion)

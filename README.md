@@ -19,7 +19,9 @@ This repository contains Idem.gg API implemented as Unity package providing Beam
 * `PlayerTimeoutMs` - inactivity delay in ms before a player will be removed from MM, default 5000
 * `GlobalMatchTimeoutS` - delay before a match will be considered abandoned and removed from MM, default 86400
 * `MatchmakingTimeoutS` - delay before matchmaking is stopped if no match found, 0 to disable, default 0
+* `ProtectedRequestsKey` - for non-empty values will require this key in the protected requests (e.g. backfilling), default disabled
 * `Debug` - not empty value will enable verbose logging and allow to use debug endpoints, default disabled
+* `Beta` - `true` value will switch to the beta Idem's endpoint, default disabled
 
 
 
