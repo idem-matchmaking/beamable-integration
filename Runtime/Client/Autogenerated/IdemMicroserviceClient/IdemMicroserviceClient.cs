@@ -124,6 +124,36 @@ namespace Beamable.Server.Clients
             serializedFields.Add("payload", raw_payload);
             return this.Request<string>("IdemMicroservice", "CompleteMatch", serializedFields);
         }
+        
+        /// <summary>
+        /// Call the RequestBackfilling method on the IdemMicroservice microservice
+        /// <see cref="Beamable.Microservices.IdemMicroservice.RequestBackfilling"/>
+        /// </summary>
+        public Beamable.Common.Promise<string> RequestBackfilling(string payload, string requestKey)
+        {
+            object raw_payload = payload;
+            object raw_requestKey = requestKey;
+            System.Collections.Generic.Dictionary<string, object> serializedFields = new System.Collections.Generic.Dictionary<string, object>();
+            serializedFields.Add("payload", raw_payload);
+            serializedFields.Add("requestKey", raw_requestKey);
+            return this.Request<string>("IdemMicroservice", "RequestBackfilling", serializedFields);
+        }
+        
+        /// <summary>
+        /// Call the CancelBackfilling method on the IdemMicroservice microservice
+        /// <see cref="Beamable.Microservices.IdemMicroservice.CancelBackfilling"/>
+        /// </summary>
+        public Beamable.Common.Promise<string> CancelBackfilling(string matchId, string backfillingRequestId, string requestKey)
+        {
+            object raw_matchId = matchId;
+            object raw_backfillingRequestId = backfillingRequestId;
+            object raw_requestKey = requestKey;
+            System.Collections.Generic.Dictionary<string, object> serializedFields = new System.Collections.Generic.Dictionary<string, object>();
+            serializedFields.Add("matchId", raw_matchId);
+            serializedFields.Add("backfillingRequestId", raw_backfillingRequestId);
+            serializedFields.Add("requestKey", raw_requestKey);
+            return this.Request<string>("IdemMicroservice", "CancelBackfilling", serializedFields);
+        }
     }
     
     internal sealed class MicroserviceParametersIdemMicroserviceClient
