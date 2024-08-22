@@ -206,6 +206,28 @@ namespace Beamable.Microservices
                 Debug.Log($"CancelBackfilling called with matchId {matchId}, request id {backfillingRequestId}, response: {response}");
             return response;
         }
+        
+        // protected request
+        [ClientCallable]
+        public async Task<string> QueueCount(string gameMode, int minSecondsWait, string requestKey)
+        {
+            var connectionError = await CheckConnection();
+            if (connectionError != null)
+                return connectionError;
+
+            if (!string.IsNullOrWhiteSpace(protectedRequestsKey) && protectedRequestsKey != requestKey)
+            {
+                if (debug)
+                    Debug.LogWarning($"Got protected request with invalid key: {requestKey}. Expected: {protectedRequestsKey}. Ignoring.");
+                return string.Empty;
+            }
+
+            var result = logic.GetQueueCount(gameMode, minSecondsWait);
+            var response = result.ToJson();
+            if (debug)
+                Debug.Log($"QueueCount called with gameMode {gameMode}, min seconds wait {minSecondsWait}, response: {response}");
+            return response;
+        }
 
         private async Task<string> CheckConnection()
         {

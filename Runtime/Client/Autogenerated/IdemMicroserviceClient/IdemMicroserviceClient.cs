@@ -154,6 +154,22 @@ namespace Beamable.Server.Clients
             serializedFields.Add("requestKey", raw_requestKey);
             return this.Request<string>("IdemMicroservice", "CancelBackfilling", serializedFields);
         }
+        
+        /// <summary>
+        /// Call the QueueCount method on the IdemMicroservice microservice
+        /// <see cref="Beamable.Microservices.IdemMicroservice.QueueCount"/>
+        /// </summary>
+        public Beamable.Common.Promise<string> QueueCount(string gameMode, int minSecondsWait, string requestKey)
+        {
+            object raw_gameMode = gameMode;
+            object raw_minSecondsWait = minSecondsWait;
+            object raw_requestKey = requestKey;
+            System.Collections.Generic.Dictionary<string, object> serializedFields = new System.Collections.Generic.Dictionary<string, object>();
+            serializedFields.Add("gameMode", raw_gameMode);
+            serializedFields.Add("minSecondsWait", raw_minSecondsWait);
+            serializedFields.Add("requestKey", raw_requestKey);
+            return this.Request<string>("IdemMicroservice", "QueueCount", serializedFields);
+        }
     }
     
     internal sealed class MicroserviceParametersIdemMicroserviceClient
@@ -166,6 +182,11 @@ namespace Beamable.Server.Clients
         
         [System.SerializableAttribute()]
         internal sealed class ParameterSystem_Array_System_String : MicroserviceClientDataWrapper<string[]>
+        {
+        }
+        
+        [System.SerializableAttribute()]
+        internal sealed class ParameterSystem_Int32 : MicroserviceClientDataWrapper<int>
         {
         }
     }

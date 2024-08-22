@@ -177,6 +177,65 @@ namespace Idem
             }
         }
 
+        public async Task<bool> RequestBackfilling(string protectedRequestsKey, string matchId, string backfillingRequestId, string droppedPlayerId, ScoreData[] matchScores)
+        {
+            var backfillingData = new BackfillingData(matchId, backfillingRequestId, droppedPlayerId, matchScores);
+            
+            try
+            {
+                var json = backfillingData.ToJson();
+                var response = await idemClient.RequestBackfilling(json, protectedRequestsKey);
+
+                if (JsonUtil.TryParse<BaseResponse>(response, out var parsed) && !parsed.success)
+                    Debug.LogError($"Error requesting backfilling: {parsed.error}");
+
+                return parsed.success;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error requesting backfilling: {e.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> CancelBackfilling(string protectedRequestsKey, string matchId, string backfillingRequestId)
+        {
+            try
+            {
+                var response = await idemClient.CancelBackfilling(matchId, backfillingRequestId, protectedRequestsKey);
+
+                if (JsonUtil.TryParse<BaseResponse>(response, out var parsed) && !parsed.success)
+                    Debug.LogError($"Error cancelling backfilling: {parsed.error}");
+
+                return parsed.success;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error cancelling backfilling: {e.Message}");
+                return false;
+            }
+        }
+        
+        public async Task<int> GetQueueCount(string protectedRequestsKey, string gameMode, int minSecondsWait = 0)
+        {
+            try
+            {
+                var response = await idemClient.QueueCount(gameMode, minSecondsWait, protectedRequestsKey);
+                if (!JsonUtil.TryParse<QueueCountResponse>(response, out var parsed))
+                {
+                    Debug.LogError($"Error getting queue count: {response}");
+                    return -1;
+                }
+
+                return parsed.count;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error getting queue count: {e.Message}");
+                return -1;
+            }
+        }
+
         private void Reset()
         {
             isPlaying = false;

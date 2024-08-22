@@ -239,6 +239,20 @@ namespace Beamable.Microservices.Idem.IdemLogic
 	        return result ? BaseResponse.Success : BaseResponse.IdemConnectionFailure;
 		}
 
+		public BaseResponse GetQueueCount(string gameMode, int minSecondsWait)
+		{
+			var gameModeContainer = GetGameMode(gameMode);
+
+			var result = 0;
+			foreach (var player in gameModeContainer.waitingPlayers.Values)
+			{
+				if (player.WaitsMoreThan(minSecondsWait))
+					result++;
+			}
+
+			return new QueueCountResponse(result);
+		}
+
         public void HandleIdemMessage(string message)
         {
             if (debug)

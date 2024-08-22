@@ -36,6 +36,9 @@ namespace Beamable.Microservices.Idem.IdemLogic
 			this.playerId = playerId;
 			enqueuedAt = lastSeen = DateTime.Now;
 		}
+
+		public bool WaitsMoreThan(int minSecondsWait) =>
+			minSecondsWait <= 0 || DateTime.Now - enqueuedAt >= TimeSpan.FromSeconds(minSecondsWait);
 	}
 
 	internal class CachedMatch
