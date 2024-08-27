@@ -147,8 +147,12 @@ namespace Beamable.Microservices.Idem.IdemLogic
 	        var success = true;
 	        foreach (var (gameId, gameContainer) in gameModes)
 	        {
-		        if (gameContainer.waitingPlayers.ContainsKey(playerId))
+		        if (gameContainer.waitingPlayers.ContainsKey(playerId)) 
+				{
 			        success = success && sendToIdem(new RemovePlayerMessage(gameId, playerId));
+			        if (success)
+						gameContainer.waitingPlayers.Remove(playerId);
+				}
 
 		        if (gameContainer.pendingMatches.TryGetValue(playerId, out var match))
 		        {
@@ -396,7 +400,9 @@ namespace Beamable.Microservices.Idem.IdemLogic
 	        if (gameContainer == null || removePlayerResponse.payload.playerId == null)
 		        return;
 
-	        gameContainer.waitingPlayers.Remove(new (removePlayerResponse.payload.playerId));
+			if (!gameContainer.waitingPlayers.ContainsKey(removePlayerResponse.payload.playerId))
+				gameContainer.waitingPlayers.Remove(removePlayerResponse.payload.playerId);
+			
 	        SignalAwaiters(removePlayerResponse);
         }
 
